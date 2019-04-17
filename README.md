@@ -1,6 +1,6 @@
 # 面向对象编程
 ## 一、JS的解析和执行过程
-  程序执行前，首先进行代码的解析，生成词法环境用于保存相关数据。程序执行时，对词法环境中的成员进行赋值
+  程序执行前，首先进行代码的解析，生成词法环境用于保存相关数据;程序执行时，对词法环境中的成员进行赋值
 ### 1.词法环境(LexicalEnvironment)  
   - 用于保存程序中用var定义的变量和声明方式创建的函数  
   - 参考代码
@@ -251,7 +251,7 @@
                      } )(i) 
            }
   ```
-## 四、对象
+## 四、面向对象
 ### 1.对象类型
   - JS内置对象（Number）
   - 宿主环境（window）
@@ -283,7 +283,8 @@
 	  - 参考案例
 	  ```
 		var p = new Object()
-	    p.name = 'tom'
+	    p.name = 'tom'  
+  		p.work= function(){alert('工作中。。。。')}
 		/*
 		参数1表示需要添加成员的对象
 		参数2表示成员的名称
@@ -314,7 +315,33 @@
 	   p.height=180
 	   alert(p.height)
 	  ```
+  - 对象工厂
+	- 通过工厂函数生成对象并返回
+	- 生成的不同对象独立保存，共性的属性无法共用
+	- 参考案例
+	  ```
+		function PersonFactory(name,age){
+			return {
+				name:name,
+				age:age
+			}
+		}
+		var person1 = PersonFactory('tom',20)
+		var person2 = PersonFactory('jack',21)
+	  ```   
   - 构造函数
+    - 通过自定义函数，并且用new的方式创建对象
+    - 生成的不同对象独立保存，可以通过原型实现共性属性的共用
+    - 参考案例 
+	  ```
+		function Person(name,age){
+			this.name = name
+			this.age = age
+		}
+	    Person.prototype.country='CHN'	//country是共性的属性
+		var person1 = new Person('tom',20)
+		var person2 = new Person('jack',21)
+	  ```   
 ### 3.对象成员特性修饰符
   - writable :设置是否可写
   - enumerable ：设置是否可以枚举，用于遍历
@@ -322,12 +349,13 @@
   - 用define系列方法设置时，默认都是false
   - 通过Object.getOwnPropertyDescriptor(对象名,成员名)查看成员的具体特性
 ### 4.对象的构造器
-  - 每个对象都具有一个constructor属性，表示其创建的类型
-  - 基本数据类型都由其类型函数构造而成
-  - 自定义函数对象由Function构造而成
-  - 对象由Object函数构造而成
-  - Object以及不同类型函数都由Function构造而成
-  - Function仍由Function构造而成
+  - 每个对象都具有一个constructor属性，表示其创建的类型函数
+  - 函数也是一种对象，也有constructor属性
+	  - 基本数据类型都由其类型函数构造而成
+	  - 自定义函数对象由Function构造而成
+	  - 对象由Object函数构造而成
+	  - Object以及不同类型函数都由Function构造而成
+	  - Function仍由Function构造而成
   - 参考案例
   ```
     var a = 1
@@ -347,7 +375,16 @@
     console.log(Object.constructor)//构造器是Function
     console.log(Function.constructor)//构造器是Function
   ``` 
-### 5.对象的基本操作
+### 5.函数的原型
+  - 每个函数都具有一个prototype属性（函数特有），它指向一个用于保存共性成员的原型对象
+  - 每个对象都具有一个属性__proto__,它也指向原型对象
+  	- 函数（自定义函数或Function）对象的__proto__是Funciton.prototype
+  	- 原型对象的__proto__指向顶级Object的prototype
+  	- 顶级Object的原型对象的__proto__为null
+  - 原型的作用是提供共性成员、实现继承 
+  - 原型链参考图![原型链](js_prototype.png)
+ 
+### 6.对象的基本操作
   - 对象的成员访问
 	  - 通过成员访问符访问，允许连缀访问
 	  - 通过中括号属性访问,当属性名是非字符类型时比较方便
@@ -403,4 +440,25 @@
 
 	  ``` 
 ### 4.对象的特性
+  - 面向对象练习题
+  - 创建一个不使用new的实例对象方法  
+  ```
+    function Person(name,age){
+        this.name = name;
+        this.age = age
+    }
+    var p1 = new Person('tom',20)
+    console.log(p1.name +' ' + p1.age)
+
+	function NewPerson(f){
+	    return function(){
+	        var obj = {}
+	        obj.__proto__ = f.prototype
+	        f.apply(obj,arguments)
+	        return obj
+	    }
+	}
+    var p2 = NewPerson(Person)('jack',20)
+    console.log(p2.name + ' ' + p2.age)
+  ```
 ## 五、继承和多态
